@@ -39,12 +39,12 @@ fun Greeting( modifier: Modifier = Modifier) {
     var amount by remember{
         mutableStateOf("")
     }
-    var expenses by remember{
-        mutableStateOf(listOf<String>())
+    var transactions by remember{
+        mutableStateOf(listOf<Transaction>())
     }
-    val total=expenses.sumOf {
-        it.removePrefix("₹").toIntOrNull() ?: 0
-    }
+    val totalDebit = transactions
+        .filter { it.type == "DEBIT" }
+        .sumOf { it.amount }
 
     Column(
         modifier=modifier.fillMaxSize().padding(16.dp)
@@ -56,7 +56,7 @@ fun Greeting( modifier: Modifier = Modifier) {
         Spacer(modifier=Modifier.height(20.dp))
 
         Text(
-            text = "Total: ₹$total",
+            text = "Total Debited: ₹$totalDebit",
             fontSize = 22.sp
         )
 
@@ -73,8 +73,12 @@ fun Greeting( modifier: Modifier = Modifier) {
 
         Button(
             onClick = {
-                if (amount.isNotEmpty()) {
-                    expenses = expenses + "₹$amount"
+                if (amount.toIntOrNull() !=null) {
+                    transactions = transactions + Transaction(
+                        amount = amount.toInt(),
+                        type = "DEBIT",
+                        date = "24 Jul 2026"
+                    )
                     amount = ""
                 }
             }
@@ -84,7 +88,7 @@ fun Greeting( modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(20.dp))
 
         LazyColumn {
-            items(expenses){expense->
+            items(transactions){transaction->
 
                 Row(
                     modifier = Modifier
@@ -95,12 +99,12 @@ fun Greeting( modifier: Modifier = Modifier) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = expense,
+                        text = "₹${transaction.amount}",
                         fontSize = 22.sp
                     )
                     Button(
                         onClick = {
-                            expenses = expenses - expense
+                            transactions = transactions - transaction
                         }
                     ) {
                         Text("Delete")
