@@ -73,15 +73,20 @@ fun Greeting( modifier: Modifier = Modifier) {
 
         Button(
             onClick = {
-                if (amount.toIntOrNull() !=null) {
-                    transactions = transactions + Transaction(
-                        amount = amount.toInt(),
-                        type = "DEBIT",
-                        date = "24 Jul 2026"
-                    )
-                    amount = ""
+//                if (amount.toIntOrNull() !=null) {
+//                    transactions = transactions + Transaction(
+//                        amount = amount.toInt(),
+//                        type = "DEBIT",
+//                        date = "24 Jul 2026"
+//                    )
+//                    amount = ""
+//                }
+                    val sms = "Dear Customer, Acct XXXX is credited with Rs 8000.00 on 09-Jul-26 from SUCHITA PAULUS. UPI:xxxxxxx-ICICI Bank."
+
+                    val transaction = SmsParser.parseSms(sms)
+
+                    println(transaction)
                 }
-            }
         ){
             Text("Add expense")
         }
