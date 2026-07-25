@@ -16,6 +16,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import com.example.expensetracker.ui.theme.ExpenseTrackerTheme
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.LaunchedEffect
+import androidx.core.content.ContextCompat
+import androidx.compose.ui.platform.LocalContext
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,6 +52,42 @@ fun Greeting( modifier: Modifier = Modifier) {
     val totalDebit = transactions
         .filter { it.type == "DEBIT" }
         .sumOf { it.amount }
+
+    val context = LocalContext.current
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+
+            transactions = SmsReader.readTransactions(context)
+
+            println(transactions)
+
+        } else {
+
+            println("SMS Permission Denied")
+
+        }
+    }
+
+    LaunchedEffect(Unit) {
+
+        if (
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.READ_SMS
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+
+            transactions = SmsReader.readTransactions(context)
+
+        } else {
+
+            permissionLauncher.launch(Manifest.permission.READ_SMS)
+
+        }
+    }
 
     Column(
         modifier=modifier.fillMaxSize().padding(16.dp)
@@ -104,7 +147,7 @@ fun Greeting( modifier: Modifier = Modifier) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "₹${transaction.amount}",
+                        text = "${transaction.type} | ₹${transaction.amount} | ${transaction.date}",
                         fontSize = 22.sp
                     )
                     Button(
