@@ -2,7 +2,10 @@ package com.example.expensetracker
 
 object SmsParser {
 
-    fun parseSms(sms: String): Transaction? {
+    fun parseSms(
+        sms: String,
+        timestamp: Long
+    ): Transaction? {
 
         val type = when {
             sms.contains("debited", ignoreCase = true) -> "DEBIT"
@@ -27,7 +30,8 @@ object SmsParser {
         return Transaction(
             amount = amount,
             type = type,
-            date = date
+            date = date,
+            timestamp = timestamp
         )
     }
 }

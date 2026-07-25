@@ -25,7 +25,11 @@ object SmsReader {
                     it.getColumnIndexOrThrow(Telephony.Sms.BODY)
                 )
 
-                val transaction = SmsParser.parseSms(body)
+                val timestamp = it.getLong(
+                    it.getColumnIndexOrThrow(Telephony.Sms.DATE)
+                )
+
+                val transaction = SmsParser.parseSms(body, timestamp)
 
                 val id = it.getLong(
                     it.getColumnIndexOrThrow(Telephony.Sms._ID)
@@ -34,9 +38,7 @@ object SmsReader {
                 val sender = it.getString(
                     it.getColumnIndexOrThrow(Telephony.Sms.ADDRESS)
                 )
-                val timestamp = it.getLong(
-                    it.getColumnIndexOrThrow(Telephony.Sms.DATE)
-                )
+
 
                 if (transaction != null) {
 

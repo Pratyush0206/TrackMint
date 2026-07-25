@@ -24,6 +24,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.core.content.ContextCompat
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.Color
+import java.time.Instant
+import java.time.ZoneId
+import java.time.YearMonth
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,11 +50,28 @@ fun Greeting( modifier: Modifier = Modifier) {
     var transactions by remember{
         mutableStateOf(listOf<Transaction>())
     }
-    val totalDebit = transactions
+    var selectedMonth by remember {
+        mutableStateOf(YearMonth.now())
+    }
+
+    val filteredTransactions = transactions.filter {
+
+        val transactionMonth = Instant
+            .ofEpochMilli(it.timestamp)
+            .atZone(ZoneId.systemDefault())
+            .toLocalDate()
+            .let { date ->
+                YearMonth.of(date.year, date.month)
+            }
+
+        transactionMonth == selectedMonth
+    }
+
+    val totalDebit = filteredTransactions
         .filter { it.type == "DEBIT" }
         .sumOf { it.amount }
 
-    val totalCredit = transactions
+    val totalCredit = filteredTransactions
         .filter { it.type == "CREDIT" }
         .sumOf { it.amount }
 
@@ -96,60 +116,118 @@ fun Greeting( modifier: Modifier = Modifier) {
     Column(
         modifier=modifier.fillMaxSize().padding(16.dp)
     ){
-        Text(
-            text = "Expense Tracker",
-            fontSize=28.sp
-        )
-        Spacer(modifier=Modifier.height(20.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
 
-        Text(
-            text = "Total Credited: ₹$totalCredit",
-            fontSize = 22.sp,
-            color = Color(0xFF2E7D32)
-        )
+            Button(
+                onClick = {
+                    selectedMonth = selectedMonth.minusMonths(1)
+                }
+            ) {
+                Text("<")
+            }
 
-        Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "${selectedMonth.month} ${selectedMonth.year}",
+                fontSize = 20.sp
+            )
 
-        Text(
-            text = "Total Debited: ₹$totalDebit",
-            fontSize = 22.sp,
-            color = Color.Red
-        )
+            Button(
+                onClick = {
+                    if (selectedMonth < YearMonth.now()) {
+                        selectedMonth = selectedMonth.plusMonths(1)
+                    }
+                }
+            ) {
+                Text(">")
+            }
+        }
+        Spacer(modifier = Modifier.height(16.dp))
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
 
-        Text(
-            text = "Net Expenditure: ₹$netBalance",
-            fontSize = 22.sp
-        )
+                Text(
+                    text = "Expense Tracker",
+                    fontSize = 28.sp
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "Total Credited: ₹$totalCredit",
+                    fontSize = 20.sp,
+                    color = Color(0xFF2E7D32)
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = "Total Debited: ₹$totalDebit",
+                    fontSize = 20.sp,
+                    color = Color.Red
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = "Net Expenditure: ₹$netBalance",
+                    fontSize = 20.sp
+                )
+            }
+        }
 
         Spacer(modifier = Modifier.height(20.dp))
 
         LazyColumn {
-            items(transactions){transaction->
+            items(filteredTransactions) { transaction ->
 
-                Row(
+                Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 4.dp),
-
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                        .padding(vertical = 6.dp)
                 ) {
-                    Text(
-                        text = "${transaction.type} | ₹${transaction.amount} | ${transaction.date}",
-                        fontSize = 16.sp,
-                        color = if (transaction.type == "CREDIT")
-                            Color(0xFF2E7D32)
-                        else
-                            Color.Red
-                    )
-                    Button(
-                        onClick = {
-                            transactions = transactions - transaction
-                        }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("Delete")
+
+                        Column {
+                            Text(
+                                text = transaction.type,
+                                fontSize = 18.sp,
+                                color = if (transaction.type == "CREDIT")
+                                    Color(0xFF2E7D32)
+                                else
+                                    Color.Red
+                            )
+
+                            Spacer(modifier = Modifier.height(4.dp))
+
+                            Text(
+                                text = transaction.date,
+                                fontSize = 14.sp
+                            )
+                        }
+
+                        Text(
+                            text = "₹${transaction.amount}",
+                            fontSize = 20.sp,
+                            color = if (transaction.type == "CREDIT")
+                                Color(0xFF2E7D32)
+                            else
+                                Color.Red
+                        )
                     }
                 }
             }
