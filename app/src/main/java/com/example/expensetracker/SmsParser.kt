@@ -3,6 +3,7 @@ package com.example.expensetracker
 object SmsParser {
 
     fun parseSms(
+        id: Long,
         sms: String,
         timestamp: Long
     ): Transaction? {
@@ -44,11 +45,12 @@ object SmsParser {
         }
 
         return Transaction(
+            id = id,
             amount = amount,
             type = type,
             date = date,
             timestamp = timestamp,
-            name=name
+            name = name
         )
     }
 }

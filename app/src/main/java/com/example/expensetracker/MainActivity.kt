@@ -28,6 +28,7 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.YearMonth
 import androidx.compose.ui.text.font.FontWeight
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,9 +49,16 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Greeting( modifier: Modifier = Modifier) {
 
+    val scope = rememberCoroutineScope()
+
     var transactions by remember {
         mutableStateOf(listOf<Transaction>())
     }
+
+    var isLoading by remember {
+        mutableStateOf(true)
+    }
+
     var selectedMonth by remember {
         mutableStateOf(YearMonth.now())
     }
@@ -80,14 +88,25 @@ fun Greeting( modifier: Modifier = Modifier) {
 
     val context = LocalContext.current
 
+    val dao = DatabaseProvider.db.transactionDao()
+    val repository = TransactionRepository(dao)
+
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
 
-            transactions = SmsReader.readTransactions(context)
+            scope.launch {
 
-            println(transactions)
+                val smsTransactions = SmsReader.readTransactions(context)
+
+                repository.saveTransactions(smsTransactions)
+
+                transactions = repository.getTransactions()
+
+                isLoading = false
+
+            }
 
         } else {
 
@@ -105,7 +124,13 @@ fun Greeting( modifier: Modifier = Modifier) {
             ) == PackageManager.PERMISSION_GRANTED
         ) {
 
-            transactions = SmsReader.readTransactions(context)
+            val smsTransactions = SmsReader.readTransactions(context)
+
+            repository.saveTransactions(smsTransactions)
+
+            transactions = repository.getTransactions()
+
+            isLoading = false
 
         } else {
 
@@ -188,7 +213,13 @@ fun Greeting( modifier: Modifier = Modifier) {
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        if (filteredTransactions.isEmpty()) {
+        if (isLoading) {
+
+            CircularProgressIndicator()
+
+        }
+
+        else if (filteredTransactions.isEmpty()) {
 
             Text(
                 text = "No transactions found for ${selectedMonth.month} ${selectedMonth.year}",
@@ -256,11 +287,15 @@ fun Greeting( modifier: Modifier = Modifier) {
 
                                 Button(
                                     onClick = {
-                                        transactions = transactions.map {
-                                            if (it == transaction)
-                                                it.copy(excluded = true)
-                                            else
-                                                it
+                                        scope.launch {
+
+                                            val updatedTransaction = transaction.copy(
+                                                excluded = true
+                                            )
+
+                                            repository.updateTransaction(updatedTransaction)
+
+                                            transactions = repository.getTransactions()
                                         }
                                     }
                                 ) {
