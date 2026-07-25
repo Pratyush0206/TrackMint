@@ -8,7 +8,6 @@ object SmsReader {
     fun readTransactions(context: Context): List<Transaction> {
 
         val transactions = mutableListOf<Transaction>()
-        val seenBodies = mutableSetOf<String>()
 
         val cursor = context.contentResolver.query(
             Telephony.Sms.Inbox.CONTENT_URI,
@@ -39,9 +38,7 @@ object SmsReader {
                     it.getColumnIndexOrThrow(Telephony.Sms.DATE)
                 )
 
-                if (transaction != null && body !in seenBodies) {
-
-                    seenBodies.add(body)
+                if (transaction != null) {
 
                     println("ID: $id")
                     println("Sender: $sender")

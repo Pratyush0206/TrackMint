@@ -53,6 +53,12 @@ fun Greeting( modifier: Modifier = Modifier) {
         .filter { it.type == "DEBIT" }
         .sumOf { it.amount }
 
+    val totalCredit = transactions
+        .filter { it.type == "CREDIT" }
+        .sumOf { it.amount }
+
+    val netBalance = totalCredit - totalDebit
+
     val context = LocalContext.current
 
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -99,7 +105,21 @@ fun Greeting( modifier: Modifier = Modifier) {
         Spacer(modifier=Modifier.height(20.dp))
 
         Text(
+            text = "Total Credited: ₹$totalCredit",
+            fontSize = 22.sp
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
             text = "Total Debited: ₹$totalDebit",
+            fontSize = 22.sp
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = "Net Expenditure: ₹$netBalance",
             fontSize = 22.sp
         )
 
