@@ -202,36 +202,76 @@ fun Greeting( modifier: Modifier = Modifier) {
             elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
         ) {
             Column(
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(20.dp)
             ) {
 
                 Text(
-                    text = "Expense Tracker",
-                    fontSize = 28.sp
+                    text = "Track Mint",
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
-                Text(
-                    text = "Total Credited: ₹$totalCredit",
-                    fontSize = 20.sp,
-                    color = Color(0xFF2E7D32)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+
+                    Text(
+                        text = "Received",
+                        fontSize = 18.sp
+                    )
+
+                    Text(
+                        text = "₹${String.format("%,d", totalCredit)}",
+                        fontSize = 18.sp,
+                        color = Color(0xFF2E7D32),
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+
+                    Text(
+                        text = "Spent",
+                        fontSize = 18.sp
+                    )
+
+                    Text(
+                        text = "₹${String.format("%,d", totalDebit)}",
+                        fontSize = 18.sp,
+                        color = Color.Red,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = 18.dp)
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
 
-                Text(
-                    text = "Total Debited: ₹$totalDebit",
-                    fontSize = 20.sp,
-                    color = Color.Red
-                )
+                    Text(
+                        text = "Net Expenditure",
+                        fontSize = 21.sp,
+                        fontWeight = FontWeight.Bold
+                    )
 
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    text = "Net Expenditure: ₹$netBalance",
-                    fontSize = 20.sp
-                )
+                    Text(
+                        text = "₹${String.format("%,d", netBalance)}",
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
 
@@ -287,7 +327,7 @@ fun Greeting( modifier: Modifier = Modifier) {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(16.dp),
+                                .padding(20.dp),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
 
@@ -322,12 +362,16 @@ fun Greeting( modifier: Modifier = Modifier) {
                             ) {
 
                                 Text(
-                                    text = "₹${transaction.amount}",
+                                    text = if (transaction.type == "CREDIT")
+                                        "+ ₹${String.format("%,d", transaction.amount)}"
+                                    else
+                                        "- ₹${String.format("%,d", transaction.amount)}",
                                     fontSize = 20.sp,
                                     color = if (transaction.type == "CREDIT")
                                         Color(0xFF2E7D32)
                                     else
-                                        Color.Red
+                                        Color.Red,
+                                    fontWeight = FontWeight.Bold
                                 )
 
                                 Spacer(modifier = Modifier.height(8.dp))
