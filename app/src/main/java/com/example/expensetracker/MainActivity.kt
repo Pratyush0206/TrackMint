@@ -63,6 +63,10 @@ fun Greeting( modifier: Modifier = Modifier) {
         mutableStateOf(YearMonth.now())
     }
 
+    var showExcluded by remember {
+        mutableStateOf(false)
+    }
+
     val filteredTransactions = transactions.filter {
 
         val transactionMonth = Instant
@@ -73,7 +77,8 @@ fun Greeting( modifier: Modifier = Modifier) {
                 YearMonth.of(date.year, date.month)
             }
 
-        transactionMonth == selectedMonth && !it.excluded
+        transactionMonth == selectedMonth &&
+                (it.excluded == showExcluded)
     }
 
     val totalDebit = filteredTransactions
@@ -213,6 +218,26 @@ fun Greeting( modifier: Modifier = Modifier) {
 
         Spacer(modifier = Modifier.height(20.dp))
 
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Show Excluded",
+                fontSize = 18.sp
+            )
+
+            Switch(
+                checked = showExcluded,
+                onCheckedChange = {
+                    showExcluded = it
+                }
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         if (isLoading) {
 
             CircularProgressIndicator()
@@ -222,7 +247,10 @@ fun Greeting( modifier: Modifier = Modifier) {
         else if (filteredTransactions.isEmpty()) {
 
             Text(
-                text = "No transactions found for ${selectedMonth.month} ${selectedMonth.year}",
+                text = if (showExcluded)
+                    "No excluded transactions"
+                else
+                    "No transactions found for ${selectedMonth.month} ${selectedMonth.year}",
                 fontSize = 18.sp,
                 modifier = Modifier.padding(top = 20.dp)
             )
@@ -290,7 +318,7 @@ fun Greeting( modifier: Modifier = Modifier) {
                                         scope.launch {
 
                                             val updatedTransaction = transaction.copy(
-                                                excluded = true
+                                                excluded = !transaction.excluded
                                             )
 
                                             repository.updateTransaction(updatedTransaction)
@@ -299,7 +327,12 @@ fun Greeting( modifier: Modifier = Modifier) {
                                         }
                                     }
                                 ) {
-                                    Text("Exclude")
+                                    Text(
+                                        if (transaction.excluded)
+                                            "Include"
+                                        else
+                                            "Exclude"
+                                    )
                                 }
                             }
                         }
