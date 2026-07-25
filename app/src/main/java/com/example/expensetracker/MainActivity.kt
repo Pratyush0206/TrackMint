@@ -23,6 +23,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.LaunchedEffect
 import androidx.core.content.ContextCompat
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Color
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,9 +44,6 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Greeting( modifier: Modifier = Modifier) {
 
-    var amount by remember{
-        mutableStateOf("")
-    }
     var transactions by remember{
         mutableStateOf(listOf<Transaction>())
     }
@@ -57,7 +55,7 @@ fun Greeting( modifier: Modifier = Modifier) {
         .filter { it.type == "CREDIT" }
         .sumOf { it.amount }
 
-    val netBalance = totalCredit - totalDebit
+    val netBalance = totalDebit - totalCredit
 
     val context = LocalContext.current
 
@@ -106,14 +104,16 @@ fun Greeting( modifier: Modifier = Modifier) {
 
         Text(
             text = "Total Credited: ₹$totalCredit",
-            fontSize = 22.sp
+            fontSize = 22.sp,
+            color = Color(0xFF2E7D32)
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
             text = "Total Debited: ₹$totalDebit",
-            fontSize = 22.sp
+            fontSize = 22.sp,
+            color = Color.Red
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -123,36 +123,6 @@ fun Greeting( modifier: Modifier = Modifier) {
             fontSize = 22.sp
         )
 
-        OutlinedTextField(
-            value=amount,
-            onValueChange = {
-                amount=it
-            },
-            label={
-                Text("Enter amount")
-            }
-        )
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Button(
-            onClick = {
-//                if (amount.toIntOrNull() !=null) {
-//                    transactions = transactions + Transaction(
-//                        amount = amount.toInt(),
-//                        type = "DEBIT",
-//                        date = "24 Jul 2026"
-//                    )
-//                    amount = ""
-//                }
-                    val sms = "Dear Customer, Acct XXXX is credited with Rs 8000.00 on 09-Jul-26 from SUCHITA PAULUS. UPI:xxxxxxx-ICICI Bank."
-
-                    val transaction = SmsParser.parseSms(sms)
-
-                    println(transaction)
-                }
-        ){
-            Text("Add expense")
-        }
         Spacer(modifier = Modifier.height(20.dp))
 
         LazyColumn {
@@ -168,7 +138,11 @@ fun Greeting( modifier: Modifier = Modifier) {
                 ) {
                     Text(
                         text = "${transaction.type} | ₹${transaction.amount} | ${transaction.date}",
-                        fontSize = 22.sp
+                        fontSize = 16.sp,
+                        color = if (transaction.type == "CREDIT")
+                            Color(0xFF2E7D32)
+                        else
+                            Color.Red
                     )
                     Button(
                         onClick = {
