@@ -1,5 +1,9 @@
 package com.example.expensetracker
 
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
 object SmsParser {
 
     fun parseSms(
@@ -24,9 +28,10 @@ object SmsParser {
             .toDouble()
             .toInt()
 
-        val dateRegex = Regex("""\d{2}-[A-Za-z]{3}-\d{2}""")
-
-        val date = dateRegex.find(sms)?.value ?: return null
+        val date = SimpleDateFormat(
+            "dd MMM yyyy • hh:mm a",
+            Locale.getDefault()
+        ).format(Date(timestamp))
 
         val name = when (type) {
             "DEBIT" ->

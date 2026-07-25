@@ -94,7 +94,15 @@ fun Greeting( modifier: Modifier = Modifier) {
     val context = LocalContext.current
 
     val dao = DatabaseProvider.db.transactionDao()
+
     val repository = TransactionRepository(dao)
+
+    suspend fun syncTransactions() {
+
+        TransactionSyncManager.sync(context)
+
+        transactions = repository.getTransactions()
+    }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
@@ -103,11 +111,7 @@ fun Greeting( modifier: Modifier = Modifier) {
 
             scope.launch {
 
-                val smsTransactions = SmsReader.readTransactions(context)
-
-                repository.saveTransactions(smsTransactions)
-
-                transactions = repository.getTransactions()
+                syncTransactions()
 
                 isLoading = false
 
@@ -129,11 +133,7 @@ fun Greeting( modifier: Modifier = Modifier) {
             ) == PackageManager.PERMISSION_GRANTED
         ) {
 
-            val smsTransactions = SmsReader.readTransactions(context)
-
-            repository.saveTransactions(smsTransactions)
-
-            transactions = repository.getTransactions()
+            syncTransactions()
 
             isLoading = false
 
@@ -174,6 +174,25 @@ fun Greeting( modifier: Modifier = Modifier) {
                 }
             ) {
                 Text(">")
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Button(
+                onClick = {
+                    scope.launch {
+                        syncTransactions()
+                    }
+                },
+                contentPadding = PaddingValues(
+                    horizontal = 10.dp,
+                    vertical = 4.dp
+                )
+            ) {
+                Text(
+                    "↻",
+                    fontSize = 18.sp
+                )
             }
         }
         Spacer(modifier = Modifier.height(16.dp))
