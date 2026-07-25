@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.Color
 import java.time.Instant
 import java.time.ZoneId
 import java.time.YearMonth
+import androidx.compose.ui.text.font.FontWeight
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,7 +48,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Greeting( modifier: Modifier = Modifier) {
 
-    var transactions by remember{
+    var transactions by remember {
         mutableStateOf(listOf<Transaction>())
     }
     var selectedMonth by remember {
@@ -64,7 +65,7 @@ fun Greeting( modifier: Modifier = Modifier) {
                 YearMonth.of(date.year, date.month)
             }
 
-        transactionMonth == selectedMonth
+        transactionMonth == selectedMonth && !it.excluded
     }
 
     val totalDebit = filteredTransactions
@@ -114,8 +115,8 @@ fun Greeting( modifier: Modifier = Modifier) {
     }
 
     Column(
-        modifier=modifier.fillMaxSize().padding(16.dp)
-    ){
+        modifier = modifier.fillMaxSize().padding(16.dp)
+    ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -187,51 +188,92 @@ fun Greeting( modifier: Modifier = Modifier) {
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        LazyColumn {
-            items(filteredTransactions) { transaction ->
+        if (filteredTransactions.isEmpty()) {
 
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 6.dp)
-                ) {
-                    Row(
+            Text(
+                text = "No transactions found for ${selectedMonth.month} ${selectedMonth.year}",
+                fontSize = 18.sp,
+                modifier = Modifier.padding(top = 20.dp)
+            )
+
+        } else {
+
+            LazyColumn {
+                items(filteredTransactions) { transaction ->
+
+                    Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(16.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                            .padding(vertical = 6.dp)
                     ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
 
-                        Column {
-                            Text(
-                                text = transaction.type,
-                                fontSize = 18.sp,
-                                color = if (transaction.type == "CREDIT")
-                                    Color(0xFF2E7D32)
-                                else
-                                    Color.Red
-                            )
+                            Column {
+                                Text(
+                                    text = transaction.type,
+                                    fontSize = 18.sp,
+                                    color = if (transaction.type == "CREDIT")
+                                        Color(0xFF2E7D32)
+                                    else
+                                        Color.Red
+                                )
 
-                            Spacer(modifier = Modifier.height(4.dp))
+                                Spacer(modifier = Modifier.height(4.dp))
 
-                            Text(
-                                text = transaction.date,
-                                fontSize = 14.sp
-                            )
+                                Text(
+                                    text = transaction.name,
+                                    fontSize = 16.sp,
+                                    fontWeight=FontWeight.Bold
+                                )
+
+                                Spacer(modifier = Modifier.height(4.dp))
+
+                                Text(
+                                    text = transaction.date,
+                                    fontSize = 14.sp
+                                )
+                            }
+
+                            Column(
+                                horizontalAlignment = Alignment.End
+                            ) {
+
+                                Text(
+                                    text = "₹${transaction.amount}",
+                                    fontSize = 20.sp,
+                                    color = if (transaction.type == "CREDIT")
+                                        Color(0xFF2E7D32)
+                                    else
+                                        Color.Red
+                                )
+
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                Button(
+                                    onClick = {
+                                        transactions = transactions.map {
+                                            if (it == transaction)
+                                                it.copy(excluded = true)
+                                            else
+                                                it
+                                        }
+                                    }
+                                ) {
+                                    Text("Exclude")
+                                }
+                            }
                         }
-
-                        Text(
-                            text = "₹${transaction.amount}",
-                            fontSize = 20.sp,
-                            color = if (transaction.type == "CREDIT")
-                                Color(0xFF2E7D32)
-                            else
-                                Color.Red
-                        )
                     }
                 }
             }
+
         }
+
     }
 }
 

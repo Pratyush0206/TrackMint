@@ -27,11 +27,28 @@ object SmsParser {
 
         val date = dateRegex.find(sms)?.value ?: return null
 
+        val name = when (type) {
+            "DEBIT" ->
+                Regex(""";\s*(.*?)\s+credited""", RegexOption.IGNORE_CASE)
+                    .find(sms)
+                    ?.groupValues?.get(1)
+                    ?: "Unknown"
+
+            "CREDIT" ->
+                Regex("""from\s+(.*?)\.""", RegexOption.IGNORE_CASE)
+                    .find(sms)
+                    ?.groupValues?.get(1)
+                    ?: "Unknown"
+
+            else -> "Unknown"
+        }
+
         return Transaction(
             amount = amount,
             type = type,
             date = date,
-            timestamp = timestamp
+            timestamp = timestamp,
+            name=name
         )
     }
 }

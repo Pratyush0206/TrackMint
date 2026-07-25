@@ -31,23 +31,7 @@ object SmsReader {
 
                 val transaction = SmsParser.parseSms(body, timestamp)
 
-                val id = it.getLong(
-                    it.getColumnIndexOrThrow(Telephony.Sms._ID)
-                )
-
-                val sender = it.getString(
-                    it.getColumnIndexOrThrow(Telephony.Sms.ADDRESS)
-                )
-
-
                 if (transaction != null) {
-
-                    println("ID: $id")
-                    println("Sender: $sender")
-                    println("Timestamp: $timestamp")
-                    println(body)
-                    println(transaction)
-                    println("----------------------")
 
                     transactions.add(transaction)
                 }
