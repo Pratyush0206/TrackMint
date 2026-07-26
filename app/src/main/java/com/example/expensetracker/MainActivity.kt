@@ -29,6 +29,9 @@ import java.time.ZoneId
 import java.time.YearMonth
 import androidx.compose.ui.text.font.FontWeight
 import kotlinx.coroutines.launch
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Close
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,6 +58,10 @@ fun Greeting( modifier: Modifier = Modifier) {
         mutableStateOf(listOf<Transaction>())
     }
 
+    var searchQuery by remember {
+        mutableStateOf("")
+    }
+
     var isLoading by remember {
         mutableStateOf(true)
     }
@@ -77,8 +84,26 @@ fun Greeting( modifier: Modifier = Modifier) {
                 YearMonth.of(date.year, date.month)
             }
 
-        transactionMonth == selectedMonth &&
-                (it.excluded == showExcluded)
+        val matchesMonth = transactionMonth == selectedMonth
+
+        val matchesExcluded =
+            if (showExcluded)
+                it.excluded
+            else
+                !it.excluded
+
+        val matchesSearch =
+            searchQuery.isBlank() ||
+
+                    it.name.contains(searchQuery, ignoreCase = true) ||
+
+                    it.type.contains(searchQuery, ignoreCase = true) ||
+
+                    it.amount.toString().contains(searchQuery) ||
+
+                    it.date.contains(searchQuery, ignoreCase = true)
+
+        matchesMonth && matchesExcluded && matchesSearch
     }
 
     val totalDebit = filteredTransactions
@@ -195,6 +220,40 @@ fun Greeting( modifier: Modifier = Modifier) {
                 )
             }
         }
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = {
+                searchQuery = it
+            },
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = {
+                Text("Search transactions...")
+            },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = "Search"
+                )
+            },
+            trailingIcon = {
+                if (searchQuery.isNotEmpty()) {
+                    IconButton(
+                        onClick = {
+                            searchQuery = ""
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Clear"
+                        )
+                    }
+                }
+            },
+            singleLine = true
+        )
+
         Spacer(modifier = Modifier.height(16.dp))
 
         Card(
