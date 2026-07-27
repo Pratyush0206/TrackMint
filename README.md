@@ -1,4 +1,4 @@
-# 📱 Expense Tracker
+# 📱 Track Mint
 
 An Android application that automatically tracks expenses by reading bank SMS notifications and storing them locally. The app eliminates manual expense entry and provides an intuitive interface for searching, organizing, and managing transactions.
 
