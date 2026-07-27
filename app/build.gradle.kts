@@ -60,5 +60,9 @@ dependencies {
     implementation("androidx.room:room-runtime:2.7.2")
     implementation("androidx.room:room-ktx:2.7.2")
     ksp("androidx.room:room-compiler:2.7.2")
+    implementation("com.patrykandpatrick.vico:compose:1.16.1")
+    implementation("com.patrykandpatrick.vico:compose-m3:1.16.1")
+    implementation("com.patrykandpatrick.vico:core:1.16.1")
+    implementation("com.patrykandpatrick.vico:views:1.16.1")
 
 }

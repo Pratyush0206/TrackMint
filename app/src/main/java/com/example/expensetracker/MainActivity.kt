@@ -32,6 +32,9 @@ import kotlinx.coroutines.launch
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.material.icons.filled.StickyNote2
+import androidx.compose.material3.Icon
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -72,6 +75,9 @@ fun Greeting( modifier: Modifier = Modifier) {
 
     var showExcluded by remember {
         mutableStateOf(false)
+    }
+    var selectedTransaction by remember {
+        mutableStateOf<Transaction?>(null)
     }
 
     val filteredTransactions = transactions.filter {
@@ -170,8 +176,12 @@ fun Greeting( modifier: Modifier = Modifier) {
     }
 
     Column(
-        modifier = modifier.fillMaxSize().padding(16.dp)
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp)
     ) {
+
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -183,12 +193,17 @@ fun Greeting( modifier: Modifier = Modifier) {
                     selectedMonth = selectedMonth.minusMonths(1)
                 }
             ) {
-                Text("<")
+                Text(
+                    "<",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                )
             }
 
             Text(
                 text = "${selectedMonth.month} ${selectedMonth.year}",
-                fontSize = 20.sp
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold
             )
 
             Button(
@@ -198,7 +213,11 @@ fun Greeting( modifier: Modifier = Modifier) {
                     }
                 }
             ) {
-                Text(">")
+                Text(
+                    ">",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                )
             }
 
             Spacer(modifier = Modifier.width(8.dp))
@@ -216,11 +235,12 @@ fun Greeting( modifier: Modifier = Modifier) {
             ) {
                 Text(
                     "↻",
-                    fontSize = 18.sp
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold
                 )
             }
         }
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedTextField(
             value = searchQuery,
@@ -254,7 +274,7 @@ fun Greeting( modifier: Modifier = Modifier) {
             singleLine = true
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -266,11 +286,11 @@ fun Greeting( modifier: Modifier = Modifier) {
 
                 Text(
                     text = "Track Mint",
-                    fontSize = 28.sp,
+                    fontSize = 24.sp,
                     fontWeight = FontWeight.Bold
                 )
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -290,7 +310,7 @@ fun Greeting( modifier: Modifier = Modifier) {
                     )
                 }
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -334,7 +354,7 @@ fun Greeting( modifier: Modifier = Modifier) {
             }
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -354,15 +374,13 @@ fun Greeting( modifier: Modifier = Modifier) {
             )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         if (isLoading) {
 
             CircularProgressIndicator()
 
-        }
-
-        else if (filteredTransactions.isEmpty()) {
+        } else if (filteredTransactions.isEmpty()) {
 
             Text(
                 text = if (showExcluded)
@@ -379,6 +397,9 @@ fun Greeting( modifier: Modifier = Modifier) {
                 items(filteredTransactions) { transaction ->
 
                     Card(
+                        onClick = {
+                            selectedTransaction = transaction
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 6.dp)
@@ -402,11 +423,28 @@ fun Greeting( modifier: Modifier = Modifier) {
 
                                 Spacer(modifier = Modifier.height(4.dp))
 
-                                Text(
-                                    text = transaction.name,
-                                    fontSize = 16.sp,
-                                    fontWeight=FontWeight.Bold
-                                )
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+
+                                    Text(
+                                        text = transaction.name,
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+
+                                    if (transaction.notes.isNotBlank()) {
+
+                                        Spacer(modifier = Modifier.width(6.dp))
+
+                                        Icon(
+                                            imageVector = Icons.Default.StickyNote2,
+                                            contentDescription = "Has Note",
+                                            tint = Color(0xFFFFC107),
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                    }
+                                }
 
                                 Spacer(modifier = Modifier.height(4.dp))
 
@@ -461,9 +499,22 @@ fun Greeting( modifier: Modifier = Modifier) {
                     }
                 }
             }
-
         }
+    }
+    if (selectedTransaction != null) {
 
+        TransactionDetailsDialog(
+            transaction = selectedTransaction!!,
+            repository = repository,
+            onDismiss = {
+
+                scope.launch {
+                    transactions = repository.getTransactions()
+                }
+
+                selectedTransaction = null
+            }
+        )
     }
 }
 

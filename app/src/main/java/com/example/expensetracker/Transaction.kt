@@ -13,5 +13,6 @@ data class Transaction(
     val date: String,
     val timestamp: Long,
     val name: String,
-    var excluded: Boolean = false
+    var excluded: Boolean = false,
+    val notes: String = ""
 )
