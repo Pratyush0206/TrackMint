@@ -1,4 +1,7 @@
-# 📱 Track Mint
+<h1>
+  <img src="/app/src/main/l-playstore.png" width="38" style="vertical-align:middle;">
+  TrackMint
+</h1>
 
 An Android application that automatically tracks expenses by reading bank SMS notifications and storing them locally. The app eliminates manual expense entry and provides an intuitive interface for searching, organizing, and managing transactions.
 
