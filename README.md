@@ -107,7 +107,7 @@ app/
 1. Clone the repository
 
 ```bash
-git clone https://github.com/Pratyush0206/ExpenseTracker.git
+git clone https://github.com/Pratyush0206/TrackMint.git
 ```
 
 2. Open the project in Android Studio.
