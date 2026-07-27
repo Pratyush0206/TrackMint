@@ -105,21 +105,37 @@ app/
 
 ---
 
-# 🚀 Installation
+## 📥 Download
 
-1. Clone the repository
+You can download the latest APK from the **Releases** page.
 
-```bash
-git clone https://github.com/Pratyush0206/TrackMint.git
-```
+➡️ **Download here:** https://github.com/Pratyush0206/TrackMint/releases/latest
 
-2. Open the project in Android Studio.
+---
 
-3. Build and run the application.
+## ⚠️ Installation
 
-4. Grant SMS permission when prompted.
+TrackMint reads bank SMS messages to automatically detect and record transactions. Because of this, Google Play Protect may warn that the app can access sensitive data.
 
-5. Tap **Sync** to import transactions from SMS.
+### Installation Steps
+
+1. Download the latest APK from the Releases page.
+2. Open the downloaded APK.
+3. If prompted, allow installation from your browser or file manager.
+4. If Google Play Protect blocks the installation:
+    - Tap **More details**.
+    - Select **Install anyway** (if available).
+
+If installation is still blocked:
+
+1. Open the **Google Play Store**.
+2. Tap your **profile picture** → **Play Protect**.
+3. Tap the **Settings (⚙️)** icon.
+4. Turn **Scan apps with Play Protect** **OFF** temporarily.
+5. Install the TrackMint APK.
+6. Re-enable Play Protect after installation.
+
+> **Note:** TrackMint is completely open source. You can inspect the source code in this repository before installing.
 
 ---
 
